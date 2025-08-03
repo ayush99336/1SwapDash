@@ -1,13 +1,17 @@
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_1INCH_API_URL
+// Use proxy in development, direct API in production
+const API_BASE_URL = import.meta.env.DEV 
+  ? '/api/1inch' 
+  : import.meta.env.VITE_1INCH_API_URL
+
 const API_KEY = import.meta.env.VITE_1INCH_API_KEY
 const CHAIN_ID = import.meta.env.VITE_CHAIN_ID || '1'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Authorization': `Bearer ${API_KEY}`,
+    ...(import.meta.env.DEV ? {} : { 'Authorization': `Bearer ${API_KEY}` }),
     'accept': 'application/json',
   },
 })

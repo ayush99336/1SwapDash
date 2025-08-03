@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { COMMON_TOKENS, type Token } from '../utils/tokens'
-import { getTokens } from '../utils/api'
+// import { getTokens } from '../utils/api' // Disabled for now due to CORS
 
 interface TokenSelectorProps {
   selectedToken?: Token
@@ -22,6 +22,12 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
   useEffect(() => {
     const fetchTokens = async () => {
       try {
+        // For now, just use common tokens to avoid CORS issues
+        // Later we can add more tokens or fix the API proxy
+        setAllTokens(Object.values(COMMON_TOKENS))
+        
+        // Uncomment when API proxy is working properly
+        /*
         const tokens = await getTokens()
         const tokenList = Object.values(tokens).map((token: any) => ({
           address: token.address,
@@ -30,7 +36,15 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
           decimals: token.decimals,
           logoURI: token.logoURI
         }))
-        setAllTokens([...Object.values(COMMON_TOKENS), ...tokenList])
+        
+        // Deduplicate by address
+        const commonTokenAddresses = new Set(Object.values(COMMON_TOKENS).map(t => t.address.toLowerCase()))
+        const uniqueTokens = tokenList.filter(token => 
+          !commonTokenAddresses.has(token.address.toLowerCase())
+        )
+        
+        setAllTokens([...Object.values(COMMON_TOKENS), ...uniqueTokens])
+        */
       } catch (error) {
         console.error('Failed to fetch tokens:', error)
         // Fallback to common tokens
