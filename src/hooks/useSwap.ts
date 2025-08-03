@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAccount, useWalletClient } from 'wagmi'
-// import { getSwap, type SwapParams } from '../utils/api' // Disabled due to CORS
-// import { parseTokenAmount } from '../utils/tokens' // Disabled due to CORS
+import { getSwap, type SwapParams } from '../utils/api'
+import { parseTokenAmount } from '../utils/tokens'
 
 export interface SwapTransaction {
   hash: string
@@ -25,8 +25,8 @@ export const useSwap = () => {
     fromToken: string,
     toToken: string,
     amount: string,
-    _fromDecimals: number, // Prefixed with _ to indicate unused for now
-    _slippage: number = 1  // Prefixed with _ to indicate unused for now
+    fromDecimals: number,
+    slippage: number = 1
   ): Promise<SwapTransaction | null> => {
     if (!address || !walletClient) {
       throw new Error('Wallet not connected')
@@ -36,29 +36,6 @@ export const useSwap = () => {
     setError(null)
 
     try {
-      // Temporarily disable actual swap execution due to CORS issues
-      // For demo purposes, create a mock transaction
-      
-      const mockTxHash = '0x' + Math.random().toString(16).substring(2, 66)
-      
-      const transaction: SwapTransaction = {
-        hash: mockTxHash,
-        from: fromToken,
-        to: toToken,
-        fromToken: 'USDC', // Mock values
-        toToken: 'DAI',
-        fromAmount: amount,
-        toAmount: (parseFloat(amount) * 0.998).toString(), // Mock 0.2% slippage
-        timestamp: Date.now(),
-        status: 'success' // Mock success for demo
-      }
-
-      // Simulate delay
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      return transaction
-      
-      /* Original code - enable when CORS is fixed
       const parsedAmount = parseTokenAmount(amount, fromDecimals)
       
       const swapParams: SwapParams = {
@@ -96,7 +73,6 @@ export const useSwap = () => {
       }
 
       return transaction
-      */
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Swap failed'
       setError(errorMessage)

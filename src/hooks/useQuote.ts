@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
-// import { getQuote, type QuoteParams, type QuoteResponse } from '../utils/api' // Disabled due to CORS
-import { type QuoteResponse } from '../utils/api'
-// import { parseTokenAmount } from '../utils/tokens' // Disabled due to CORS
+import { getQuote, type QuoteParams, type QuoteResponse } from '../utils/api'
+import { parseTokenAmount } from '../utils/tokens'
 
 interface UseQuoteParams {
   fromToken?: string
@@ -30,34 +29,8 @@ export const useQuote = ({ fromToken, toToken, amount, fromDecimals }: UseQuoteP
     setError(null)
 
     try {
-      // Temporarily disable quote fetching due to CORS issues
-      // const parsedAmount = parseTokenAmount(amount, fromDecimals)
+      const parsedAmount = parseTokenAmount(amount, fromDecimals)
       
-      // Mock quote for demo purposes
-      const mockQuote = {
-        fromToken: {
-          symbol: 'USDC',
-          name: 'USD Coin',
-          decimals: 6,
-          address: fromToken,
-          logoURI: ''
-        },
-        toToken: {
-          symbol: 'DAI',
-          name: 'Dai Stablecoin',
-          decimals: 18,
-          address: toToken,
-          logoURI: ''
-        },
-        toTokenAmount: (parseFloat(amount) * 0.998 * Math.pow(10, 18)).toString(), // Mock 0.2% slippage
-        fromTokenAmount: (parseFloat(amount) * Math.pow(10, 6)).toString(),
-        protocols: [],
-        estimatedGas: 150000
-      }
-      
-      setQuote(mockQuote)
-      
-      /* Original code - enable when CORS is fixed
       const quoteParams: QuoteParams = {
         fromTokenAddress: fromToken,
         toTokenAddress: toToken,
@@ -66,7 +39,6 @@ export const useQuote = ({ fromToken, toToken, amount, fromDecimals }: UseQuoteP
 
       const quoteData = await getQuote(quoteParams)
       setQuote(quoteData)
-      */
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch quote')
       console.error('Error fetching quote:', err)

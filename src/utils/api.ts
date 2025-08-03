@@ -31,7 +31,7 @@ export interface TokenBalance {
 }
 
 export interface BalanceResponse {
-  [tokenAddress: string]: TokenBalance
+  [tokenAddress: string]: string // Just balance values
 }
 
 export interface QuoteParams {
@@ -90,13 +90,13 @@ export interface SwapResponse extends QuoteResponse {
 }
 
 // Get wallet token balances
-export const getBalances = async (walletAddress: string): Promise<BalanceResponse> => {
+export const getBalances = async (address: string): Promise<BalanceResponse> => {
   try {
-    const response = await api.get(`/balance/v1.2/${CHAIN_ID}/balances/${walletAddress}`)
+    const response = await api.get(`/balance/v1.2/1/balances/${address}`)
     return response.data
-  } catch (error) {
-    console.error('Error fetching balances:', error)
-    throw error
+  } catch (error: any) {
+    console.error('Error fetching balances:', error.response?.data || error.message)
+    throw new Error(error.response?.data?.description || 'Failed to fetch balances')
   }
 }
 
@@ -126,7 +126,7 @@ export const getSwap = async (params: SwapParams): Promise<SwapResponse> => {
 export const getTokens = async () => {
   try {
     const response = await api.get(`/swap/v6.0/${CHAIN_ID}/tokens`)
-    return response.data.tokens
+    return response.data
   } catch (error) {
     console.error('Error fetching tokens:', error)
     throw error
