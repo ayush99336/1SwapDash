@@ -38,6 +38,29 @@ export default defineConfig(({ mode }) => {
             });
           },
         },
+        // Separate proxy for Web3 RPC API
+        '/api/web3': {
+          target: 'https://api.1inch.dev/web3',
+          changeOrigin: true,
+          secure: true,
+          rewrite: (path) => path.replace(/^\/api\/web3/, ''),
+          headers: {
+            'Authorization': `Bearer ${env.VITE_1INCH_API_KEY}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          configure: (proxy, _options) => {
+            proxy.on('error', (err, _req, _res) => {
+              console.log('Web3 RPC proxy error', err);
+            });
+            proxy.on('proxyReq', (_proxyReq, req, _res) => {
+              console.log('Sending Web3 RPC Request:', req.method, req.url);
+            });
+            proxy.on('proxyRes', (proxyRes, req, _res) => {
+              console.log('Received Web3 RPC Response:', proxyRes.statusCode, req.url);
+            });
+          },
+        },
       },
     },
   }

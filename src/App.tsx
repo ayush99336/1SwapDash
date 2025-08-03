@@ -8,6 +8,9 @@ import { SwapHistory } from './components/SwapHistory'
 import { AdvancedDashboard } from './components/AdvancedDashboard'
 import { FusionTrading } from './components/FusionTrading'
 import { MarketAnalytics } from './components/MarketAnalytics'
+import { Web3RpcDemo } from './components/Web3RpcDemo'
+import { PriceTracker } from './components/PriceTracker'
+import { NetworkStats } from './components/NetworkStats'
 import { Card } from './components/ui/card'
 import { Badge } from './components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs'
@@ -127,7 +130,18 @@ function App() {
               </TabsContent>
 
               <TabsContent value="analytics" className="mt-6">
-                <MarketAnalytics />
+                <div className="space-y-6">
+                  <MarketAnalytics />
+                  
+                  {/* Real-time Price Tracking */}
+                  <PriceTracker />
+                  
+                  {/* Network Statistics */}
+                  <NetworkStats />
+                  
+                  {/* Advanced Web3 RPC Demo */}
+                  <Web3RpcDemo />
+                </div>
               </TabsContent>
             </Tabs>
           </div>

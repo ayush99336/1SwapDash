@@ -212,7 +212,7 @@ export const FusionTrading: React.FC = () => {
                     <img 
                       src={source.img} 
                       alt={source.title} 
-                      className="w-8 h-8 rounded-full"
+                      className="w-12 h-12 rounded-full"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement
                         target.style.display = 'none'

@@ -27,6 +27,8 @@ import {
   type NFTCollection,
   type LiquiditySource
 } from '../utils'
+import { getSpotPrices, getPopularTokens, getSingleTokenPrice } from '../utils/spotPrice'
+import { getNetworkInfo, getLatestBlock, getGasPrice } from '../utils/web3Rpc'
 
 // Portfolio Hooks
 export const usePortfolio = () => {
@@ -487,4 +489,184 @@ export const useLiquiditySources = () => {
   }, [chainId])
 
   return { sources, loading, error }
+}
+
+// Spot Price API Hook
+export const useSpotPrices = (tokenAddresses: string[] = []) => {
+  const chainId = useChainId()
+  const [prices, setPrices] = useState<{ [address: string]: number }>({})
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (tokenAddresses.length === 0) {
+      // Use popular tokens if none specified
+      const popularTokens = getPopularTokens(chainId)
+      tokenAddresses = popularTokens
+    }
+
+    if (tokenAddresses.length === 0) return
+
+    const fetchPrices = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const priceData = await getSpotPrices(chainId, tokenAddresses)
+        setPrices(priceData)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch prices')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPrices()
+    
+    // Refresh prices every 30 seconds
+    const interval = setInterval(fetchPrices, 30000)
+    return () => clearInterval(interval)
+  }, [chainId, tokenAddresses.join(',')])
+
+  return { prices, loading, error, refresh: () => window.location.reload() }
+}
+
+// Single Token Price Hook
+export const useTokenPrice = (tokenAddress: string) => {
+  const chainId = useChainId()
+  const [price, setPrice] = useState<number>(0)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!tokenAddress) return
+
+    const fetchPrice = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const priceData = await getSingleTokenPrice(chainId, tokenAddress)
+        setPrice(priceData)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch token price')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPrice()
+    
+    // Refresh price every 30 seconds
+    const interval = setInterval(fetchPrice, 30000)
+    return () => clearInterval(interval)
+  }, [chainId, tokenAddress])
+
+  return { price, loading, error }
+}
+
+// Web3 RPC API Hook for Network Information
+export const useNetworkInfo = () => {
+  const chainId = useChainId()
+  const [networkInfo, setNetworkInfo] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchNetworkInfo = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const info = await getNetworkInfo(chainId)
+        setNetworkInfo(info)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch network info')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchNetworkInfo()
+    
+    // Refresh network info every 30 seconds to avoid rate limiting
+    const interval = setInterval(fetchNetworkInfo, 30000)
+    return () => clearInterval(interval)
+  }, [chainId])
+
+  return { networkInfo, loading, error }
+}
+
+// Real-time Gas Price Hook
+export const useGasPrice = () => {
+  const chainId = useChainId()
+  const [gasPrice, setGasPrice] = useState<number>(0)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchGasPrice = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const price = await getGasPrice(chainId)
+        setGasPrice(price)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch gas price')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchGasPrice()
+    
+    // Refresh gas price every 30 seconds to avoid rate limiting
+    const interval = setInterval(fetchGasPrice, 30000)
+    return () => clearInterval(interval)
+  }, [chainId])
+
+  return { 
+    gasPrice: {
+      wei: gasPrice,
+      gwei: Math.round(gasPrice / 1e9 * 100) / 100,
+      eth: gasPrice / 1e18
+    }, 
+    loading, 
+    error 
+  }
+}
+
+// Latest Block Hook
+export const useLatestBlock = () => {
+  const chainId = useChainId()
+  const [block, setBlock] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchLatestBlock = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const blockData = await getLatestBlock(chainId)
+        setBlock({
+          number: parseInt(blockData.number, 16),
+          hash: blockData.hash,
+          timestamp: parseInt(blockData.timestamp, 16),
+          gasLimit: parseInt(blockData.gasLimit, 16),
+          gasUsed: parseInt(blockData.gasUsed, 16),
+          transactionCount: blockData.transactions.length
+        })
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch latest block')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchLatestBlock()
+    
+    // Refresh block info every 30 seconds to avoid rate limiting
+    const interval = setInterval(fetchLatestBlock, 30000)
+    return () => clearInterval(interval)
+  }, [chainId])
+
+  return { block, loading, error }
 }

@@ -160,8 +160,14 @@ src/
 - **NFT API**: NFT portfolio tracking (ready for integration)
 - **Domains API**: ENS and domain services
 - **Orderbook API**: Order book data for advanced trading
-- **Web3 RPC API**: Direct blockchain interaction
+- **Web3 RPC API**: Direct blockchain interaction with real-time network stats
 - **Traces API**: Transaction trace analysis
+
+### Real-Time Features
+- **Live Price Tracking**: Real-time token prices with 30-second updates
+- **Network Statistics**: Live blockchain data (blocks, gas prices, network stats)
+- **Gas Price Monitoring**: Real-time gas price tracking across networks
+- **Block Information**: Latest block data with transaction counts
 
 ### Supported Networks
 - **Ethereum** (Chain ID: 1)
