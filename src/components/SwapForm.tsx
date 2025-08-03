@@ -142,12 +142,12 @@ export const SwapForm: React.FC<SwapFormProps> = ({ onSwapComplete }) => {
             <div className="flex justify-between">
               <span className="text-gray-600">You'll receive:</span>
               <span className="font-medium">
-                {formatQuoteAmount(quote.toTokenAmount, quote.toToken.decimals)} {quote.toToken.symbol}
+                {formatQuoteAmount(quote.dstAmount, quote.dstToken.decimals)} {quote.dstToken.symbol}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Estimated Gas:</span>
-              <span className="text-sm">{quote.estimatedGas.toLocaleString()}</span>
+              <span className="text-sm">{quote.gas ? parseInt(quote.gas).toLocaleString() : 'N/A'}</span>
             </div>
           </div>
         )}

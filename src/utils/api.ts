@@ -114,6 +114,38 @@ export interface ApprovalTransaction {
   gas?: string
 }
 
+// Spender address for approvals
+export interface SpenderResponse {
+  address: string
+}
+
+// Protocol information
+export interface Protocol {
+  name: string
+  part: number
+  fromTokenAddress: string
+  toTokenAddress: string
+}
+
+// Liquidity sources
+export interface LiquiditySource {
+  id: string
+  title: string
+  img: string
+  img_color?: string
+}
+
+export interface LiquiditySourcesResponse {
+  protocols: LiquiditySource[]
+}
+
+// Gas price API
+export interface GasPriceResponse {
+  standard: string
+  fast: string
+  instant: string
+}
+
 // Get token balances for a wallet on a specific chain
 export const getBalances = async (address: string, chainId: number): Promise<TokenBalance> => {
   try {
@@ -121,10 +153,9 @@ export const getBalances = async (address: string, chainId: number): Promise<Tok
       throw new Error(`Chain ID ${chainId} is not supported by 1inch API`)
     }
     
-    const response = await api.get(`/balance/v1.2/${chainId}`, {
-      params: { addresses: address }
-    })
-    return response.data[address.toLowerCase()] || {}
+    // Try the correct balance API endpoint format
+    const response = await api.get(`/balance/v1.2/${chainId}/balances/${address}`)
+    return response.data || {}
   } catch (error) {
     console.error('Error fetching balances:', error)
     throw error
@@ -220,6 +251,51 @@ export const getApprovalTransaction = async (
     return response.data
   } catch (error) {
     console.error('Error fetching approval transaction:', error)
+    throw error
+  }
+}
+
+// Get 1inch router spender address for approvals
+export const getSpender = async (chainId: number): Promise<SpenderResponse> => {
+  try {
+    if (!isChainSupported(chainId)) {
+      throw new Error(`Chain ID ${chainId} is not supported by 1inch API`)
+    }
+    
+    const response = await api.get(`/swap/v6.1/${chainId}/approve/spender`)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching spender address:', error)
+    throw error
+  }
+}
+
+// Get available liquidity sources/protocols
+export const getLiquiditySources = async (chainId: number): Promise<LiquiditySourcesResponse> => {
+  try {
+    if (!isChainSupported(chainId)) {
+      throw new Error(`Chain ID ${chainId} is not supported by 1inch API`)
+    }
+    
+    const response = await api.get(`/swap/v6.1/${chainId}/liquidity-sources`)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching liquidity sources:', error)
+    throw error
+  }
+}
+
+// Get current gas prices for the network
+export const getGasPrice = async (chainId: number): Promise<GasPriceResponse> => {
+  try {
+    if (!isChainSupported(chainId)) {
+      throw new Error(`Chain ID ${chainId} is not supported by 1inch API`)
+    }
+    
+    const response = await api.get(`/gas-price/v1.4/${chainId}`)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching gas price:', error)
     throw error
   }
 }

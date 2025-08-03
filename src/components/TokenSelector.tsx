@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useChainId } from 'wagmi'
 import { getCommonTokensForChain, type Token } from '../utils/tokens'
 import { getTokens } from '../utils/api'
@@ -60,18 +60,20 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
     fetchTokens()
   }, [chainId])
 
-  const filteredTokens = allTokens.filter(token => {
-    const matchesSearch = token.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         token.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const notExcluded = !excludeToken || token.address.toLowerCase() !== excludeToken.toLowerCase()
-    return matchesSearch && notExcluded
-  })
+  const filteredTokens = useMemo(() => {
+    return allTokens.filter(token => {
+      const matchesSearch = token.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           token.name.toLowerCase().includes(searchTerm.toLowerCase())
+      const notExcluded = !excludeToken || token.address.toLowerCase() !== excludeToken.toLowerCase()
+      return matchesSearch && notExcluded
+    })
+  }, [allTokens, searchTerm, excludeToken])
 
-  const handleSelect = (token: Token) => {
+  const handleSelect = useCallback((token: Token) => {
     onSelect(token)
     setIsOpen(false)
     setSearchTerm('')
-  }
+  }, [onSelect])
 
   return (
     <div className="relative">
@@ -125,7 +127,7 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
           
           <div className="max-h-48 overflow-y-auto">
             {filteredTokens.length > 0 ? (
-              filteredTokens.map((token) => (
+              filteredTokens.slice(0, 50).map((token) => (
                 <button
                   key={token.address}
                   onClick={() => handleSelect(token)}
@@ -148,6 +150,11 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
             ) : (
               <div className="p-3 text-center text-gray-500">
                 No tokens found
+              </div>
+            )}
+            {filteredTokens.length > 50 && (
+              <div className="p-2 text-center text-xs text-gray-400 border-t">
+                Showing first 50 of {filteredTokens.length} tokens. Refine your search for more specific results.
               </div>
             )}
           </div>

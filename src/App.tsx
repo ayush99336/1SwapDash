@@ -5,14 +5,59 @@ import { NetworkStatus } from './components/NetworkStatus'
 import { BalanceList } from './components/BalanceList'
 import { SwapForm } from './components/SwapForm'
 import { SwapHistory } from './components/SwapHistory'
+import { AdvancedDashboard } from './components/AdvancedDashboard'
+import { FusionTrading } from './components/FusionTrading'
+import { MarketAnalytics } from './components/MarketAnalytics'
 import { type SwapTransaction } from './hooks/useSwap'
+
+type TabType = 'swap' | 'portfolio' | 'fusion' | 'analytics'
 
 function App() {
   const { isConnected } = useAccount()
   const [latestTransaction, setLatestTransaction] = useState<SwapTransaction | undefined>()
+  const [activeTab, setActiveTab] = useState<TabType>('swap')
 
   const handleSwapComplete = (transaction: SwapTransaction) => {
     setLatestTransaction(transaction)
+  }
+
+  const tabs = [
+    { id: 'swap' as const, label: 'Swap', icon: '🔄' },
+    { id: 'portfolio' as const, label: 'Portfolio', icon: '💼' },
+    { id: 'fusion' as const, label: 'Fusion', icon: '⚡' },
+    { id: 'analytics' as const, label: 'Analytics', icon: '📊' }
+  ]
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'swap':
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Balances */}
+            <div className="lg:col-span-1">
+              <BalanceList />
+            </div>
+
+            {/* Middle Column - Swap Form */}
+            <div className="lg:col-span-1">
+              <SwapForm onSwapComplete={handleSwapComplete} />
+            </div>
+
+            {/* Right Column - History */}
+            <div className="lg:col-span-1">
+              <SwapHistory newTransaction={latestTransaction} />
+            </div>
+          </div>
+        )
+      case 'portfolio':
+        return <AdvancedDashboard />
+      case 'fusion':
+        return <FusionTrading />
+      case 'analytics':
+        return <MarketAnalytics />
+      default:
+        return null
+    }
   }
 
   return (
@@ -63,22 +108,28 @@ function App() {
             {/* Network Status Warning */}
             <NetworkStatus />
             
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Left Column - Balances */}
-              <div className="lg:col-span-1">
-                <BalanceList />
-              </div>
-
-              {/* Middle Column - Swap Form */}
-              <div className="lg:col-span-1">
-                <SwapForm onSwapComplete={handleSwapComplete} />
-              </div>
-
-              {/* Right Column - History */}
-              <div className="lg:col-span-1">
-                <SwapHistory newTransaction={latestTransaction} />
+            {/* Navigation Tabs */}
+            <div className="bg-white rounded-lg shadow-md mb-8">
+              <div className="flex border-b border-gray-200">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${
+                      activeTab === tab.id
+                        ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span className="text-lg">{tab.icon}</span>
+                    {tab.label}
+                  </button>
+                ))}
               </div>
             </div>
+
+            {/* Tab Content */}
+            {renderTabContent()}
           </div>
         )}
 
