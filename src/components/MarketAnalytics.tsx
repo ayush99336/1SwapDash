@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
 import { useChainId } from 'wagmi'
 import { useTopTokens, useTokenChart } from '../hooks/advanced-hooks'
-import { LoadingSpinner } from './shared/LoadingSpinner'
-import { Button } from './shared/Button'
+import { LoadingSpinner } from './ui/loading-spinner'
+import { Button } from './ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Badge } from './ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 import { formatCurrency, formatPercentage, formatNumber } from '../utils'
 
 export const MarketAnalytics: React.FC = () => {
@@ -26,10 +29,14 @@ export const MarketAnalytics: React.FC = () => {
   ]
 
   return (
-    <div className="space-y-6">
-      {/* Market Overview */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold mb-4">Market Overview</h2>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          📊 Market Analytics
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-blue-50 p-4 rounded-lg">
@@ -67,7 +74,7 @@ export const MarketAnalytics: React.FC = () => {
                 <Button
                   key={tf.value}
                   size="sm"
-                  variant={timeframe === tf.value ? 'primary' : 'outline'}
+                  variant={timeframe === tf.value ? 'default' : 'outline'}
                   onClick={() => setTimeframe(tf.value)}
                 >
                   {tf.label}
@@ -83,7 +90,7 @@ export const MarketAnalytics: React.FC = () => {
                 <Button
                   key={option.value}
                   size="sm"
-                  variant={sortBy === option.value ? 'primary' : 'outline'}
+                  variant={sortBy === option.value ? 'default' : 'outline'}
                   onClick={() => setSortBy(option.value)}
                 >
                   {option.label}
@@ -96,7 +103,7 @@ export const MarketAnalytics: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Tokens List */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div>
           <h3 className="text-lg font-semibold mb-4">
             Top Tokens ({timeframe.toUpperCase()})
           </h3>
@@ -162,7 +169,7 @@ export const MarketAnalytics: React.FC = () => {
         </div>
 
         {/* Token Chart */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div>
           <h3 className="text-lg font-semibold mb-4">
             {selectedToken ? 'Token Price Chart' : 'Select a Token'}
           </h3>
@@ -211,7 +218,7 @@ export const MarketAnalytics: React.FC = () => {
       </div>
 
       {/* Market Insights */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div>
         <h3 className="text-lg font-semibold mb-4">Market Insights</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -257,7 +264,8 @@ export const MarketAnalytics: React.FC = () => {
             )}
           </div>
         </div>
-      </div>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

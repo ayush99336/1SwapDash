@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { useAccount } from 'wagmi'
 import { TokenSelector } from './TokenSelector'
-import { Button } from './shared/Button'
-import { LoadingSpinner } from './shared/LoadingSpinner'
+import { Button } from './ui/button'
+import { LoadingSpinner } from './ui/loading-spinner'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Badge } from './ui/badge'
 import { useQuote } from '../hooks/useQuote'
 import { useSwap, type SwapTransaction } from '../hooks/useSwap'
 import { type Token } from '../utils/tokens'
@@ -62,10 +64,13 @@ export const SwapForm: React.FC<SwapFormProps> = ({ onSwapComplete }) => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-semibold mb-6">Swap Tokens</h2>
-
-      <div className="space-y-4">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          🔄 Swap Tokens
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
         {/* From Token */}
         <TokenSelector
           selectedToken={fromToken}
@@ -167,21 +172,26 @@ export const SwapForm: React.FC<SwapFormProps> = ({ onSwapComplete }) => {
         {/* Swap Button */}
         <Button
           onClick={handleSwap}
-          disabled={!canSwap}
-          loading={swapLoading}
+          disabled={!canSwap || swapLoading}
           className="w-full"
           size="lg"
         >
-          {!isConnected 
-            ? 'Connect Wallet' 
-            : !fromToken || !toToken 
-            ? 'Select Tokens' 
-            : !amount 
-            ? 'Enter Amount'
-            : 'Swap'
-          }
+          {swapLoading ? (
+            <div className="flex items-center gap-2">
+              <LoadingSpinner />
+              Swapping...
+            </div>
+          ) : (
+            !isConnected 
+              ? 'Connect Wallet' 
+              : !fromToken || !toToken 
+              ? 'Select Tokens' 
+              : !amount 
+              ? 'Enter Amount'
+              : 'Swap'
+          )}
         </Button>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

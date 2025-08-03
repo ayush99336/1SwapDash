@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useAccount, useChainId } from 'wagmi'
 import { useLiquiditySources } from '../hooks/advanced-hooks'
-import { LoadingSpinner } from './shared/LoadingSpinner'
-import { Button } from './shared/Button'
+import { LoadingSpinner } from './ui/loading-spinner'
+import { Button } from './ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Badge } from './ui/badge'
 import { formatNumber } from '../utils'
 
 interface FusionOrder {
@@ -69,26 +71,37 @@ export const FusionTrading: React.FC = () => {
 
   if (!isConnected) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold mb-4">Fusion Trading</h2>
-        <p className="text-gray-600 text-center">Connect your wallet to access Fusion trading</p>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            ⚡ Fusion Trading
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-600 text-center">Connect your wallet to access Fusion trading</p>
+        </CardContent>
+      </Card>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Fusion Overview */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold mb-4">Fusion Trading</h2>
-        <div className="bg-blue-50 p-4 rounded-lg mb-4">
-          <p className="text-blue-800 text-sm">
-            Fusion is 1inch's intent-based trading protocol that provides better prices and MEV protection.
-            Orders are filled by resolvers competing to give you the best execution.
-          </p>
-        </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          ⚡ Fusion Trading
+          <Badge variant="secondary">Beta</Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <p className="text-blue-800 text-sm">
+              Fusion is 1inch's intent-based trading protocol that provides better prices and MEV protection.
+              Orders are filled by resolvers competing to give you the best execution.
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="text-sm font-medium text-gray-700 mb-1">Active Orders</h3>
             <p className="text-2xl font-bold text-gray-900">
@@ -180,18 +193,18 @@ export const FusionTrading: React.FC = () => {
             </p>
           </div>
         )}
-      </div>
-
-      {/* Liquidity Sources */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold mb-4">Available Liquidity Sources</h3>
-        
-        {sourcesLoading ? (
-          <div className="flex justify-center py-4">
-            <LoadingSpinner />
           </div>
-        ) : liquiditySources.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+          {/* Liquidity Sources */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Available Liquidity Sources</h3>
+            
+            {sourcesLoading ? (
+              <div className="flex justify-center py-4">
+                <LoadingSpinner />
+              </div>
+            ) : liquiditySources.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {liquiditySources.slice(0, 9).map((source: any) => (
               <div key={source.id} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex items-center gap-3 mb-2">
@@ -213,11 +226,12 @@ export const FusionTrading: React.FC = () => {
                 </div>
               </div>
             ))}
+            </div>
+          ) : (
+            <p className="text-gray-600 text-center">No liquidity sources available</p>
+          )}
           </div>
-        ) : (
-          <p className="text-gray-600 text-center">No liquidity sources available</p>
-        )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

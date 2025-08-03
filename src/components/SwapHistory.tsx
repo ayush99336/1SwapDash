@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Badge } from './ui/badge'
 import { type SwapTransaction } from '../hooks/useSwap'
 
 interface SwapHistoryProps {
@@ -35,26 +37,18 @@ export const SwapHistory: React.FC<SwapHistoryProps> = ({ newTransaction }) => {
     return new Date(timestamp).toLocaleString()
   }
 
-  const getStatusColor = (status: SwapTransaction['status']) => {
-    switch (status) {
-      case 'pending':
-        return 'text-yellow-600 bg-yellow-100'
-      case 'success':
-        return 'text-green-600 bg-green-100'
-      case 'failed':
-        return 'text-red-600 bg-red-100'
-      default:
-        return 'text-gray-600 bg-gray-100'
-    }
-  }
-
   const openTransaction = (hash: string) => {
     window.open(`https://etherscan.io/tx/${hash}`, '_blank')
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-semibold mb-4">Recent Swaps</h2>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          📈 Recent Swaps
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
 
       {transactions.length === 0 ? (
         <div className="text-center text-gray-500 py-8">
@@ -73,9 +67,11 @@ export const SwapHistory: React.FC<SwapHistoryProps> = ({ newTransaction }) => {
                   <span className="font-medium">
                     {tx.fromAmount} {tx.fromToken} → {tx.toAmount} {tx.toToken}
                   </span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(tx.status)}`}>
+                  <Badge 
+                    variant={tx.status === 'success' ? 'default' : tx.status === 'pending' ? 'secondary' : 'destructive'}
+                  >
                     {tx.status}
-                  </span>
+                  </Badge>
                 </div>
                 <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -92,6 +88,7 @@ export const SwapHistory: React.FC<SwapHistoryProps> = ({ newTransaction }) => {
           ))}
         </div>
       )}
-    </div>
+      </CardContent>
+    </Card>
   )
 }

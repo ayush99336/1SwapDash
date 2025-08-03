@@ -1,6 +1,7 @@
 import React from 'react'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useAccount, useChainId } from 'wagmi'
+import { Badge } from './ui/badge'
 
 export const WalletConnector: React.FC = () => {
   const { isConnected } = useAccount()
@@ -22,9 +23,9 @@ export const WalletConnector: React.FC = () => {
   return (
     <div className="flex flex-col items-end gap-2">
       {isConnected && chainId && (
-        <div className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
+        <Badge variant="secondary" className="text-xs">
           {getChainName(chainId)} (ID: {chainId})
-        </div>
+        </Badge>
       )}
       <ConnectButton />
     </div>

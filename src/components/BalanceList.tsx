@@ -1,7 +1,9 @@
 import React from 'react'
 import { useBalances } from '../hooks/useBalances'
-import { LoadingSpinner } from './shared/LoadingSpinner'
-import { Button } from './shared/Button'
+import { LoadingSpinner } from './ui/loading-spinner'
+import { Button } from './ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Badge } from './ui/badge'
 
 export const BalanceList: React.FC = () => {
   const { nativeBalance, tokenBalances, loading, error, refetch, chainId } = useBalances()
@@ -28,44 +30,60 @@ export const BalanceList: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold mb-4">Token Balances</h2>
-        <div className="flex justify-center">
-          <LoadingSpinner />
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            💰 Token Balances
+            <Badge variant="outline">{getChainName(chainId)}</Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-center">
+            <LoadingSpinner />
+          </div>
+        </CardContent>
+      </Card>
     )
   }
 
   if (error) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold mb-4">Token Balances</h2>
-        <div className="text-red-600 text-center">
-          <p>{error}</p>
-          <Button onClick={refetch} className="mt-4">
-            Retry
-          </Button>
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            💰 Token Balances
+            <Badge variant="outline">{getChainName(chainId)}</Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-red-600 text-center">
+            <p>{error}</p>
+            <Button onClick={refetch} className="mt-4">
+              Retry
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     )
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h2 className="text-xl font-semibold">Token Balances</h2>
-          {chainId && (
-            <p className="text-sm text-gray-500">{getChainName(chainId)}</p>
-          )}
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              💰 Token Balances
+              {chainId && <Badge variant="outline">{getChainName(chainId)}</Badge>}
+            </CardTitle>
+          </div>
+          <Button onClick={refetch} size="sm" variant="outline">
+            Refresh
+          </Button>
         </div>
-        <Button onClick={refetch} size="sm" variant="outline">
-          Refresh
-        </Button>
-      </div>
+      </CardHeader>
 
-      <div className="space-y-3">
+      <CardContent className="space-y-3">
         {/* Native Token Balance */}
         {nativeBalance && chainId && (
           <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -126,7 +144,7 @@ export const BalanceList: React.FC = () => {
             No token balances found
           </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }
