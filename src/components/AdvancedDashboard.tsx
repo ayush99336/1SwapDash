@@ -8,7 +8,7 @@ import { formatCurrency, formatPercentage, formatNumber } from '../utils'
 export const AdvancedDashboard: React.FC = () => {
   const { isConnected } = useAccount()
   useChainId() // Required for hooks to work correctly
-  const [selectedTimeframe, setSelectedTimeframe] = useState<'1h' | '24h' | '1w' | '1M' | '1y'>('24h')
+  const [selectedTimeframe, setSelectedTimeframe] = useState<'1day' | '1week' | '1month' | '3years'>('1day')
 
   const { portfolio, loading: portfolioLoading, error: portfolioError } = usePortfolio()
   const { chartData, loading: chartLoading } = usePortfolioChart(selectedTimeframe)
@@ -101,7 +101,7 @@ export const AdvancedDashboard: React.FC = () => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Portfolio Value Chart</h2>
           <div className="flex space-x-2">
-            {(['1h', '24h', '1w', '1M', '1y'] as const).map((timeframe) => (
+            {(['1day', '1week', '1month', '3years'] as const).map((timeframe) => (
               <Button
                 key={timeframe}
                 size="sm"
@@ -119,9 +119,73 @@ export const AdvancedDashboard: React.FC = () => {
             <LoadingSpinner />
           </div>
         ) : chartData.length > 0 ? (
-          <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-            <p className="text-gray-600">Chart visualization would go here</p>
-            <p className="text-sm text-gray-500 ml-2">({chartData.length} data points)</p>
+          <div className="h-64 bg-gray-50 rounded-lg p-4">
+            <div className="h-full w-full">
+              <svg className="w-full h-full" viewBox="0 0 800 240">
+                {/* Chart Grid Lines */}
+                <defs>
+                  <pattern id="grid" width="40" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 20" fill="none" stroke="#e5e7eb" strokeWidth="1"/>
+                  </pattern>
+                </defs>
+                <rect width="800" height="240" fill="url(#grid)" />
+                
+                {/* Chart Line */}
+                {(() => {
+                  const minValue = Math.min(...chartData.map(d => d.value_usd))
+                  const maxValue = Math.max(...chartData.map(d => d.value_usd))
+                  const valueRange = maxValue - minValue || 1
+                  const points = chartData.map((point, index) => {
+                    const x = (index / (chartData.length - 1)) * 800
+                    const y = 240 - ((point.value_usd - minValue) / valueRange) * 240
+                    return `${x},${y}`
+                  }).join(' ')
+                  
+                  return (
+                    <>
+                      <polyline
+                        fill="none"
+                        stroke="#3b82f6"
+                        strokeWidth="2"
+                        points={points}
+                      />
+                      {/* Data points */}
+                      {chartData.map((point, index) => {
+                        const x = (index / (chartData.length - 1)) * 800
+                        const y = 240 - ((point.value_usd - minValue) / valueRange) * 240
+                        return (
+                          <circle
+                            key={index}
+                            cx={x}
+                            cy={y}
+                            r="2"
+                            fill="#3b82f6"
+                          />
+                        )
+                      })}
+                    </>
+                  )
+                })()}
+                
+                {/* Chart Labels */}
+                <text x="10" y="20" fontSize="12" fill="#6b7280">
+                  {formatCurrency(Math.max(...chartData.map(d => d.value_usd)))}
+                </text>
+                <text x="10" y="230" fontSize="12" fill="#6b7280">
+                  {formatCurrency(Math.min(...chartData.map(d => d.value_usd)))}
+                </text>
+                <text x="720" y="230" fontSize="12" fill="#6b7280">
+                  {new Date(chartData[chartData.length - 1]?.timestamp * 1000).toLocaleDateString()}
+                </text>
+              </svg>
+              
+              {/* Chart Stats */}
+              <div className="mt-2 flex justify-between text-sm text-gray-600">
+                <span>{chartData.length} data points</span>
+                <span>Current: {formatCurrency(chartData[chartData.length - 1]?.value_usd || 0)}</span>
+                <span>Range: {selectedTimeframe}</span>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">

@@ -36,6 +36,14 @@ export interface PortfolioValueChart {
   value_usd: number
 }
 
+// Portfolio v5.0 Chart Response Type
+export interface PortfolioChartResponse {
+  result: Array<{
+    timestamp: number
+    value_usd: number
+  }>
+}
+
 // Charts API Types
 export interface ChartLine {
   time: number
@@ -191,35 +199,30 @@ export const getPortfolioDetails = async (
   }
 }
 
-// Get portfolio value chart data (using ETH/USD price as proxy)
+// Get portfolio value chart data (using Portfolio v5.0 chart endpoint)
 export const getPortfolioValueChart = async (
-  _address: string, // Currently using ETH price as proxy, wallet-specific charts coming soon
+  address: string,
   chainId: number,
-  timeframe: '1h' | '24h' | '1w' | '1M' | '1y' = '24h'
+  timeframe: '1day' | '1week' | '1month' | '3years' = '1day'
 ): Promise<PortfolioValueChart[]> => {
   try {
-    // Convert timeframe to Charts API period format
-    const periodMap: { [key: string]: string } = {
-      '1h': '24H',
-      '24h': '24H', 
-      '1w': '1W',
-      '1M': '1M',
-      '1y': '1Y'
-    }
+    // Use Portfolio v5.0 chart endpoint for actual portfolio value
+    const response = await api.get(`/portfolio/portfolio/v5.0/general/chart`, {
+      params: {
+        addresses: [address],
+        chain_id: chainId,
+        timerange: timeframe,
+        use_cache: false
+      },
+      paramsSerializer: {
+        indexes: null,
+      }
+    })
     
-    const period = periodMap[timeframe] || '24H'
-    
-    // Get ETH/USD price chart as a proxy for portfolio value trends
-    // Using WETH and USDC addresses for Ethereum mainnet
-    const ethAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' // WETH
-    const usdcAddress = '0xA0b86a33E6441c1e36ED7ff2b1d0c9e7b4b8f0f7' // USDC
-    
-    const response = await api.get(`/charts/v1.0/chart/line/${ethAddress}/${usdcAddress}/${period}/${chainId}`)
-    
-    // Convert Charts API response to portfolio chart format
-    const chartData: PortfolioValueChart[] = response.data.data.map((item: ChartLine) => ({
-      timestamp: item.time,
-      value_usd: item.value
+    // Portfolio v5.0 returns the data in the correct format already
+    const chartData: PortfolioValueChart[] = response.data.result.map((item: any) => ({
+      timestamp: item.timestamp,
+      value_usd: item.value_usd
     }))
     
     return chartData
@@ -404,6 +407,31 @@ export const getTokenPairLineChart = async (
   } catch (error) {
     console.error('Error fetching line chart:', error)
     throw error
+  }
+}
+
+// Get ETH/USDT price chart as a fallback chart
+export const getETHUSDTChart = async (
+  period: '24H' | '1W' | '1M' | '1Y' | 'AllTime' = '24H',
+  chainId: number = 1
+): Promise<PortfolioValueChart[]> => {
+  try {
+    // Use WETH address instead of native ETH for Charts API
+    const wethAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' // WETH mainnet
+    const usdtAddress = '0xdac17f958d2ee523a2206206994597c13d831ec7' // USDT mainnet
+    
+    const response = await api.get(`/charts/v1.0/chart/line/${wethAddress}/${usdtAddress}/${period}/${chainId}`)
+    
+    // Convert Charts API response to portfolio chart format
+    const chartData: PortfolioValueChart[] = response.data.data.map((item: ChartLine) => ({
+      timestamp: item.time,
+      value_usd: item.value
+    }))
+    
+    return chartData
+  } catch (error) {
+    console.error('Error fetching WETH/USDT chart:', error)
+    return []
   }
 }
 

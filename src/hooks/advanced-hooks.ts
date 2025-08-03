@@ -59,7 +59,7 @@ export const usePortfolio = () => {
   return { portfolio, loading, error }
 }
 
-export const usePortfolioChart = (timeframe: '1h' | '24h' | '1w' | '1M' | '1y' = '24h') => {
+export const usePortfolioChart = (timeframe: '1day' | '1week' | '1month' | '3years' = '1day') => {
   const { address } = useAccount()
   const chainId = useChainId()
   const [chartData, setChartData] = useState<PortfolioValueChart[]>([])

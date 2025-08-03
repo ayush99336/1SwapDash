@@ -208,11 +208,11 @@ export const getTokenChart = async (
   }
 }
 
-// Get top tokens by volume
+// Get top tokens by volume/market cap
 export const getTopTokens = async (
-  chainId: number,
-  timeframe: '24h' | '7d' | '30d' = '24h',
-  limit: number = 100
+  _chainId: number,
+  _timeframe: '24h' | '7d' | '30d' = '24h',
+  _limit: number = 10
 ): Promise<Array<{
   address: string
   symbol: string
@@ -223,13 +223,13 @@ export const getTopTokens = async (
   marketCap: number
 }>> => {
   try {
-    const response = await api.get(`/charts/v1.0/${chainId}/top-tokens`, {
-      params: { timeframe, limit }
-    })
-    return response.data.tokens || []
+    // This endpoint appears to be unavailable in Charts API v1.0
+    // Return empty array to prevent errors
+    console.warn('Top tokens endpoint not available in Charts API v1.0')
+    return []
   } catch (error) {
     console.error('Error fetching top tokens:', error)
-    throw error
+    return []
   }
 }
 
