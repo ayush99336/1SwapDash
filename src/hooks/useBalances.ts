@@ -1,51 +1,64 @@
 import { useState, useEffect } from 'react'
-import { useAccount, useBalance } from 'wagmi'
-import { getBalances, getTokens, type TokenBalance } from '../utils/api'
+import { useAccount, useBalance, useChainId } from 'wagmi'
+import { getBalances, getTokens, type TokenInfo } from '../utils/api'
 import { formatUnits } from 'viem'
-import { COMMON_TOKENS } from '../utils/tokens'
+import { getCommonTokensForChain, type Token } from '../utils/tokens'
 
-export interface ExtendedTokenBalance extends TokenBalance {
+export interface ExtendedTokenBalance {
+  token_address: string
+  symbol: string
+  name: string
+  logo?: string
+  thumbnail?: string
+  decimals: number
+  balance: string
+  possible_spam: boolean
+  verified_contract: boolean
+  usd_price?: number
+  usd_value?: number
   formattedBalance: string
 }
 
 export const useBalances = () => {
   const { address, isConnected } = useAccount()
+  const chainId = useChainId()
   const [tokenBalances, setTokenBalances] = useState<ExtendedTokenBalance[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Get ETH balance using wagmi
-  const { data: ethBalance } = useBalance({
+  // Get native token balance using wagmi
+  const { data: nativeBalance } = useBalance({
     address: address,
   })
 
   const fetchBalances = async () => {
-    if (!address || !isConnected) return
+    if (!address || !isConnected || !chainId) return
 
     setLoading(true)
     setError(null)
 
     try {
-      // Get balance data (just amounts) and token metadata
+      // Get balance data (just amounts) and token metadata for current chain
       const [balanceData, tokenData] = await Promise.all([
-        getBalances(address),
-        getTokens()
+        getBalances(address, chainId),
+        getTokens(chainId)
       ])
       
       console.log('Raw balance data:', balanceData) // Debug log
       console.log('Token data:', tokenData) // Debug log
       
       const formattedBalances: ExtendedTokenBalance[] = []
+      const commonTokens = getCommonTokensForChain(chainId)
       
       // Process each token balance
       for (const [tokenAddress, balance] of Object.entries(balanceData)) {
         if (BigInt(balance) > 0n) {
           // Find token metadata from API or fallback to common tokens
-          let tokenInfo = tokenData.tokens[tokenAddress.toLowerCase()]
+          let tokenInfo: TokenInfo | Token | undefined = tokenData.tokens?.[tokenAddress.toLowerCase()]
           
           if (!tokenInfo) {
-            // Try to find in common tokens
-            tokenInfo = Object.values(COMMON_TOKENS).find((t: any) => 
+            // Try to find in common tokens for this chain
+            tokenInfo = Object.values(commonTokens).find((t: Token) => 
               t.address.toLowerCase() === tokenAddress.toLowerCase()
             )
           }
@@ -89,17 +102,18 @@ export const useBalances = () => {
 
   useEffect(() => {
     fetchBalances()
-  }, [address, isConnected])
+  }, [address, isConnected, chainId])
 
   const refetch = () => {
     fetchBalances()
   }
 
   return {
-    ethBalance,
+    nativeBalance,
     tokenBalances,
     loading,
     error,
-    refetch
+    refetch,
+    chainId
   }
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAccount } from 'wagmi'
 import { WalletConnector } from './components/WalletConnector'
+import { NetworkStatus } from './components/NetworkStatus'
 import { BalanceList } from './components/BalanceList'
 import { SwapForm } from './components/SwapForm'
 import { SwapHistory } from './components/SwapHistory'
@@ -58,20 +59,25 @@ function App() {
           </div>
         ) : (
           /* Main Dashboard */
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Balances */}
-            <div className="lg:col-span-1">
-              <BalanceList />
-            </div>
+          <div>
+            {/* Network Status Warning */}
+            <NetworkStatus />
+            
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Left Column - Balances */}
+              <div className="lg:col-span-1">
+                <BalanceList />
+              </div>
 
-            {/* Middle Column - Swap Form */}
-            <div className="lg:col-span-1">
-              <SwapForm onSwapComplete={handleSwapComplete} />
-            </div>
+              {/* Middle Column - Swap Form */}
+              <div className="lg:col-span-1">
+                <SwapForm onSwapComplete={handleSwapComplete} />
+              </div>
 
-            {/* Right Column - History */}
-            <div className="lg:col-span-1">
-              <SwapHistory newTransaction={latestTransaction} />
+              {/* Right Column - History */}
+              <div className="lg:col-span-1">
+                <SwapHistory newTransaction={latestTransaction} />
+              </div>
             </div>
           </div>
         )}

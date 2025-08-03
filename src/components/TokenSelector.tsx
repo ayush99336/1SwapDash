@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { COMMON_TOKENS, type Token } from '../utils/tokens'
+import { useChainId } from 'wagmi'
+import { getCommonTokensForChain, type Token } from '../utils/tokens'
 import { getTokens } from '../utils/api'
 
 interface TokenSelectorProps {
@@ -15,41 +16,49 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
   label,
   excludeToken
 }) => {
+  const chainId = useChainId()
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const [allTokens, setAllTokens] = useState<Token[]>(Object.values(COMMON_TOKENS))
+  const [allTokens, setAllTokens] = useState<Token[]>([])
 
   useEffect(() => {
     const fetchTokens = async () => {
+      if (!chainId) return
+      
       try {
-        const tokens = await getTokens()
-        console.log('Fetched tokens from API:', Object.keys(tokens).length) // Debug log
+        const commonTokens = getCommonTokensForChain(chainId)
+        const tokens = await getTokens(chainId)
+        console.log('Fetched tokens from API:', Object.keys(tokens.tokens || tokens).length) // Debug log
         
-        const tokenList = Object.values(tokens).map((token: any) => ({
-          address: token.address,
-          symbol: token.symbol,
-          name: token.name,
-          decimals: token.decimals,
-          logoURI: token.logoURI
-        }))
+        const tokenData = tokens.tokens || tokens
+        const tokenList = Object.values(tokenData)
+          .filter((token: any) => token && token.address && token.symbol) // Filter out invalid tokens
+          .map((token: any) => ({
+            address: token.address,
+            symbol: token.symbol,
+            name: token.name,
+            decimals: token.decimals,
+            logoURI: token.logoURI
+          }))
         
         // Deduplicate by address to avoid duplicate keys
-        const commonTokenAddresses = new Set(Object.values(COMMON_TOKENS).map(t => t.address.toLowerCase()))
+        const commonTokenAddresses = new Set(Object.values(commonTokens).map(t => t.address.toLowerCase()))
         const uniqueTokens = tokenList.filter(token => 
-          !commonTokenAddresses.has(token.address.toLowerCase())
+          token.address && !commonTokenAddresses.has(token.address.toLowerCase())
         )
         
-        console.log('Total tokens available:', Object.values(COMMON_TOKENS).length + uniqueTokens.length)
-        setAllTokens([...Object.values(COMMON_TOKENS), ...uniqueTokens])
+        console.log('Total tokens available:', Object.values(commonTokens).length + uniqueTokens.length)
+        setAllTokens([...Object.values(commonTokens), ...uniqueTokens])
       } catch (error) {
         console.error('Failed to fetch tokens:', error)
-        // Fallback to common tokens
-        setAllTokens(Object.values(COMMON_TOKENS))
+        // Fallback to common tokens for current chain
+        const commonTokens = getCommonTokensForChain(chainId)
+        setAllTokens(Object.values(commonTokens))
       }
     }
     
     fetchTokens()
-  }, [])
+  }, [chainId])
 
   const filteredTokens = allTokens.filter(token => {
     const matchesSearch = token.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
