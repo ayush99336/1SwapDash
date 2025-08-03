@@ -38,6 +38,10 @@ export const formatNumber = (num: number, decimals: number = 2): string => {
 }
 
 export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
+  if (typeof amount !== 'number' || isNaN(amount) || !isFinite(amount)) {
+    return '$0.00'
+  }
+  
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
@@ -46,7 +50,10 @@ export const formatCurrency = (amount: number, currency: string = 'USD'): string
   }).format(amount)
 }
 
-export const formatPercentage = (percentage: number): string => {
+export const formatPercentage = (percentage: number | undefined): string => {
+  if (typeof percentage !== 'number' || isNaN(percentage)) {
+    return '0.00%'
+  }
   const sign = percentage >= 0 ? '+' : ''
   return `${sign}${percentage.toFixed(2)}%`
 }

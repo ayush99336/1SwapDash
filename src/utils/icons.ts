@@ -1,0 +1,73 @@
+import { library } from '@fortawesome/fontawesome-svg-core'
+import {
+  faExchangeAlt,
+  faWallet,
+  faChartLine,
+  faNetworkWired,
+  faBolt,
+  faCoins,
+  faChartBar,
+  faGlobe,
+  faCog,
+  faArrowsRotate,
+  faChartArea,
+  faArrowTrendUp,
+  faServer,
+  faRocket,
+  faMobileAlt,
+  faSearch,
+  faHeart,
+  faCrown,
+  faFire,
+  faGem,
+  faStar
+} from '@fortawesome/free-solid-svg-icons'
+
+// Add icons to the library
+library.add(
+  faExchangeAlt,
+  faWallet,
+  faChartLine,
+  faNetworkWired,
+  faBolt,
+  faCoins,
+  faChartBar,
+  faGlobe,
+  faCog,
+  faArrowsRotate,
+  faChartArea,
+  faArrowTrendUp,
+  faServer,
+  faRocket,
+  faMobileAlt,
+  faSearch,
+  faHeart,
+  faCrown,
+  faFire,
+  faGem,
+  faStar
+)
+
+export {
+  faExchangeAlt,
+  faWallet,
+  faChartLine,
+  faNetworkWired,
+  faBolt,
+  faCoins,
+  faChartBar,
+  faGlobe,
+  faCog,
+  faArrowsRotate,
+  faChartArea,
+  faArrowTrendUp,
+  faServer,
+  faRocket,
+  faMobileAlt,
+  faSearch,
+  faHeart,
+  faCrown,
+  faFire,
+  faGem,
+  faStar
+}

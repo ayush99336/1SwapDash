@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useAccount, useChainId } from 'wagmi'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faBolt } from '@fortawesome/free-solid-svg-icons'
 import { useLiquiditySources } from '../hooks/advanced-hooks'
 import { LoadingSpinner } from './ui/loading-spinner'
 import { Button } from './ui/button'
@@ -50,31 +52,13 @@ export const FusionTrading: React.FC = () => {
     }
   }
 
-  // Placeholder function - would integrate with actual Fusion API
-  const createFusionOrder = async (fromToken: string, toToken: string, amount: string) => {
-    if (!address) return
-
-    setLoading(true)
-    setError(null)
-    try {
-      // This would be the actual Fusion order creation
-      console.log('Creating Fusion order:', { fromToken, toToken, amount })
-      
-      // Refresh orders after creation
-      await loadActiveOrders()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create order')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   if (!isConnected) {
     return (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            ⚡ Fusion Trading
+            <FontAwesomeIcon icon={faBolt} className="w-5 h-5 text-yellow-500" />
+            Fusion Trading
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -88,7 +72,8 @@ export const FusionTrading: React.FC = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          ⚡ Fusion Trading
+          <FontAwesomeIcon icon={faBolt} className="w-5 h-5 text-yellow-500" />
+          Fusion Trading
           <Badge variant="secondary">Beta</Badge>
         </CardTitle>
       </CardHeader>
@@ -212,7 +197,7 @@ export const FusionTrading: React.FC = () => {
                     <img 
                       src={source.img} 
                       alt={source.title} 
-                      className="w-12 h-12 rounded-full"
+                      className="w-12 h-12 rounded-full bg-pink-600"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement
                         target.style.display = 'none'

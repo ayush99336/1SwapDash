@@ -20,7 +20,6 @@ import {
   type TokenPrice,
   type Transaction,
   type HistoryEventDto,
-  type HistoryResponseDto,
   type FusionQuoteResponse,
   type FusionOrder,
   type TokenChart,
@@ -377,7 +376,12 @@ export const useTokenChart = (
 
   useEffect(() => {
     const fetchChart = async () => {
-      if (!tokenAddress || !chainId) return
+      if (!tokenAddress || !chainId || tokenAddress.trim() === '') {
+        setChartData(null)
+        setLoading(false)
+        setError(null)
+        return
+      }
 
       setLoading(true)
       setError(null)
@@ -387,6 +391,7 @@ export const useTokenChart = (
         setChartData(data)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch token chart')
+        setChartData(null)
       } finally {
         setLoading(false)
       }

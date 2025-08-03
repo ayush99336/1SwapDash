@@ -2,6 +2,8 @@ import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Badge } from './ui/badge'
 import { LoadingSpinner } from './ui/loading-spinner'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faChartLine, faBolt } from '@fortawesome/free-solid-svg-icons'
 import { useSpotPrices } from '../hooks/advanced-hooks'
 import { formatPrice, getTokenSymbol } from '../utils/spotPrice'
 import { useChainId } from 'wagmi'
@@ -14,7 +16,8 @@ export const PriceTracker: React.FC = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          📈 Real-Time Token Prices
+          <FontAwesomeIcon icon={faChartLine} className="w-5 h-5 text-green-500" />
+          Real-Time Token Prices
           <Badge variant="outline">1inch Spot Price API</Badge>
         </CardTitle>
       </CardHeader>
@@ -55,8 +58,9 @@ export const PriceTracker: React.FC = () => {
         
         {!loading && !error && (
           <div className="mt-4 text-center">
-            <p className="text-xs text-gray-500">
-              ⚡ Prices update every 30 seconds • Powered by 1inch Spot Price API
+            <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
+              <FontAwesomeIcon icon={faBolt} className="w-3 h-3 text-yellow-500" />
+              Prices update every 30 seconds • Powered by 1inch Spot Price API
             </p>
           </div>
         )}

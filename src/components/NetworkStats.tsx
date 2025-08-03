@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { LoadingSpinner } from './ui/loading-spinner'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faNetworkWired, faBolt } from '@fortawesome/free-solid-svg-icons'
 import { useNetworkInfo, useGasPrice, useLatestBlock } from '../hooks/advanced-hooks'
 import { useChainId } from 'wagmi'
 import type { NodeType } from '../utils/web3Rpc'
@@ -44,7 +46,8 @@ export const NetworkStats: React.FC = () => {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            🌐 Network Statistics
+            <FontAwesomeIcon icon={faNetworkWired} className="w-5 h-5 text-blue-500" />
+            Network Statistics
             <Badge variant="outline">1inch Web3 RPC API</Badge>
           </div>
           <div className="flex gap-2">
@@ -173,8 +176,9 @@ export const NetworkStats: React.FC = () => {
 
             {/* Real-time indicators */}
             <div className="text-center">
-              <p className="text-xs text-gray-500">
-                ⚡ Updates every 30 seconds • Powered by 1inch Web3 RPC API
+              <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
+                <FontAwesomeIcon icon={faBolt} className="w-3 h-3 text-yellow-500" />
+                Updates every 30 seconds • Powered by 1inch Web3 RPC API
               </p>
               <p className="text-xs text-gray-400 mt-1">
                 Rate limited to prevent 429 errors

@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useAccount } from 'wagmi'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faExchangeAlt, faWallet, faChartBar, faBolt } from '@fortawesome/free-solid-svg-icons'
 import { WalletConnector } from './components/WalletConnector'
 import { NetworkStatus } from './components/NetworkStatus'
 import { BalanceList } from './components/BalanceList'
@@ -8,7 +10,6 @@ import { SwapHistory } from './components/SwapHistory'
 import { AdvancedDashboard } from './components/AdvancedDashboard'
 import { FusionTrading } from './components/FusionTrading'
 import { MarketAnalytics } from './components/MarketAnalytics'
-import { Web3RpcDemo } from './components/Web3RpcDemo'
 import { PriceTracker } from './components/PriceTracker'
 import { NetworkStats } from './components/NetworkStats'
 import { Card } from './components/ui/card'
@@ -53,28 +54,36 @@ function App() {
           <div className="text-center py-20">
             <div className="max-w-2xl mx-auto">
               <div className="mb-8">
-                <div className="text-6xl mb-4">🔄</div>
+                <div className="text-6xl mb-4 text-blue-500">
+                  <FontAwesomeIcon icon={faExchangeAlt} />
+                </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  Welcome to DeFi Swap Dashboard
+                  Welcome to 1SWAPDASH
                 </h2>
                 <p className="text-xl text-gray-600 mb-8">
-                  Connect your wallet to start trading across multiple chains with real-time data from 1inch
+                  The Ultimate DeFi Dashboard powered by 1inch APIs - Connect your wallet to start trading across multiple chains with real-time data
                 </p>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
                 <Card className="text-center p-6">
-                  <div className="text-3xl mb-3">💰</div>
+                  <div className="text-3xl mb-3 text-green-500">
+                    <FontAwesomeIcon icon={faWallet} />
+                  </div>
                   <h3 className="font-semibold text-gray-900 mb-2">Real Balances</h3>
                   <p className="text-sm text-gray-600">View your token balances across all supported networks</p>
                 </Card>
                 <Card className="text-center p-6">
-                  <div className="text-3xl mb-3">🔄</div>
+                  <div className="text-3xl mb-3 text-blue-500">
+                    <FontAwesomeIcon icon={faExchangeAlt} />
+                  </div>
                   <h3 className="font-semibold text-gray-900 mb-2">Instant Swaps</h3>
                   <p className="text-sm text-gray-600">Swap tokens with the best rates from 1inch</p>
                 </Card>
                 <Card className="text-center p-6">
-                  <div className="text-3xl mb-3">📊</div>
+                  <div className="text-3xl mb-3 text-purple-500">
+                    <FontAwesomeIcon icon={faChartBar} />
+                  </div>
                   <h3 className="font-semibold text-gray-900 mb-2">Portfolio Analytics</h3>
                   <p className="text-sm text-gray-600">Track your portfolio performance and analytics</p>
                 </Card>
@@ -96,19 +105,19 @@ function App() {
             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)} className="w-full">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="swap" className="flex items-center gap-2">
-                  <span>🔄</span>
+                  <FontAwesomeIcon icon={faExchangeAlt} className="w-4 h-4" />
                   Swap
                 </TabsTrigger>
                 <TabsTrigger value="portfolio" className="flex items-center gap-2">
-                  <span>📊</span>
+                  <FontAwesomeIcon icon={faWallet} className="w-4 h-4" />
                   Portfolio
                 </TabsTrigger>
                 <TabsTrigger value="fusion" className="flex items-center gap-2">
-                  <span>⚡</span>
+                  <FontAwesomeIcon icon={faBolt} className="w-4 h-4" />
                   Fusion
                 </TabsTrigger>
                 <TabsTrigger value="analytics" className="flex items-center gap-2">
-                  <span>📈</span>
+                  <FontAwesomeIcon icon={faChartBar} className="w-4 h-4" />
                   Analytics
                 </TabsTrigger>
               </TabsList>
@@ -138,9 +147,6 @@ function App() {
                   
                   {/* Network Statistics */}
                   <NetworkStats />
-                  
-                  {/* Advanced Web3 RPC Demo */}
-                  <Web3RpcDemo />
                 </div>
               </TabsContent>
             </Tabs>

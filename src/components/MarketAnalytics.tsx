@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { useChainId } from 'wagmi'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faChartBar } from '@fortawesome/free-solid-svg-icons'
 import { useTopTokens, useTokenChart } from '../hooks/advanced-hooks'
 import { LoadingSpinner } from './ui/loading-spinner'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Badge } from './ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 import { formatCurrency, formatPercentage, formatNumber } from '../utils'
 
 export const MarketAnalytics: React.FC = () => {
@@ -15,7 +15,10 @@ export const MarketAnalytics: React.FC = () => {
   const [sortBy, setSortBy] = useState<'volume' | 'price_change'>('volume')
 
   const { tokens: topTokens, loading: tokensLoading } = useTopTokens(timeframe, 20)
-  const { chartData, loading: chartLoading } = useTokenChart(selectedToken, timeframe === '24h' ? '1d' : timeframe === '7d' ? '1w' : '1M')
+  const { chartData, loading: chartLoading } = useTokenChart(
+    selectedToken || '', // Only call if token is selected
+    timeframe === '24h' ? '1d' : timeframe === '7d' ? '1w' : '1M'
+  )
 
   const timeframes = [
     { value: '24h' as const, label: '24H' },
@@ -32,7 +35,8 @@ export const MarketAnalytics: React.FC = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          📊 Market Analytics
+          <FontAwesomeIcon icon={faChartBar} className="w-5 h-5 text-blue-500" />
+          Market Analytics
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -119,7 +123,7 @@ export const MarketAnalytics: React.FC = () => {
                   if (sortBy === 'volume') {
                     return b.volume24h - a.volume24h
                   } else {
-                    return b.priceChange - a.priceChange
+                    return b.priceChange24h - a.priceChange24h
                   }
                 })
                 .slice(0, 10)
@@ -149,11 +153,11 @@ export const MarketAnalytics: React.FC = () => {
                       </p>
                       <div className="flex items-center gap-2 text-xs">
                         <span className={`${
-                          token.priceChange >= 0 
+                          token.priceChange24h >= 0 
                             ? 'text-green-600' 
                             : 'text-red-600'
                         }`}>
-                          {formatPercentage(token.priceChange)}
+                          {formatPercentage(token.priceChange24h)}
                         </span>
                         <span className="text-gray-500">
                           Vol: {formatNumber(token.volume24h, 0)}
@@ -184,12 +188,40 @@ export const MarketAnalytics: React.FC = () => {
             </div>
           ) : chartData && chartData.prices && chartData.prices.length > 0 ? (
             <div className="space-y-4">
-              <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <p className="text-gray-600 mb-2">Chart visualization would go here</p>
+              <div className="h-48 bg-gray-50 rounded-lg p-4">
+                <div className="text-center mb-4">
+                  <h4 className="font-medium text-gray-900">Price Chart</h4>
                   <p className="text-sm text-gray-500">
                     {chartData.prices.length} data points for {timeframe}
                   </p>
+                </div>
+                
+                {/* Simple Price Trend Visualization */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs text-gray-600">
+                    <span>Price Range</span>
+                    <span>Current: {formatCurrency(chartData.prices[chartData.prices.length - 1]?.price || 0)}</span>
+                  </div>
+                  
+                  {/* Price trend indicators */}
+                  <div className="flex items-center gap-1 h-8 bg-white rounded px-2">
+                    {chartData.prices.slice(-20).map((point, index) => {
+                      const height = Math.max(4, Math.min(24, (point.price / Math.max(...chartData.prices.map(p => p.price))) * 24))
+                      const isGreen = index === 0 || point.price >= chartData.prices[chartData.prices.length - 20 + index - 1]?.price
+                      return (
+                        <div
+                          key={index}
+                          className={`w-1 rounded-sm ${isGreen ? 'bg-green-500' : 'bg-red-500'}`}
+                          style={{ height: `${height}px` }}
+                          title={`${formatCurrency(point.price)} at ${new Date(point.timestamp).toLocaleTimeString()}`}
+                        />
+                      )
+                    })}
+                  </div>
+                  
+                  <div className="text-xs text-gray-500 text-center">
+                    Last 20 data points • Green: Price up, Red: Price down
+                  </div>
                 </div>
               </div>
               
@@ -198,13 +230,13 @@ export const MarketAnalytics: React.FC = () => {
                 <div className="bg-gray-50 p-3 rounded">
                   <p className="text-gray-600">High</p>
                   <p className="font-medium">
-                    {formatCurrency(Math.max(...chartData.prices.map((d: any) => d[1])))}
+                    {formatCurrency(Math.max(...chartData.prices.map(point => point.price)))}
                   </p>
                 </div>
                 <div className="bg-gray-50 p-3 rounded">
                   <p className="text-gray-600">Low</p>
                   <p className="font-medium">
-                    {formatCurrency(Math.min(...chartData.prices.map((d: any) => d[1])))}
+                    {formatCurrency(Math.min(...chartData.prices.map(point => point.price)))}
                   </p>
                 </div>
               </div>
@@ -227,10 +259,10 @@ export const MarketAnalytics: React.FC = () => {
             {topTokens.length > 0 && (
               <div>
                 <p className="font-semibold text-green-900">
-                  {topTokens.sort((a, b) => b.priceChange - a.priceChange)[0]?.symbol}
+                  {topTokens.sort((a, b) => b.priceChange24h - a.priceChange24h)[0]?.symbol}
                 </p>
                 <p className="text-sm text-green-700">
-                  +{formatPercentage(topTokens.sort((a, b) => b.priceChange - a.priceChange)[0]?.priceChange || 0)}
+                  +{formatPercentage(topTokens.sort((a, b) => b.priceChange24h - a.priceChange24h)[0]?.priceChange24h || 0)}
                 </p>
               </div>
             )}
@@ -241,10 +273,10 @@ export const MarketAnalytics: React.FC = () => {
             {topTokens.length > 0 && (
               <div>
                 <p className="font-semibold text-red-900">
-                  {topTokens.sort((a, b) => a.priceChange - b.priceChange)[0]?.symbol}
+                  {topTokens.sort((a, b) => a.priceChange24h - b.priceChange24h)[0]?.symbol}
                 </p>
                 <p className="text-sm text-red-700">
-                  {formatPercentage(topTokens.sort((a, b) => a.priceChange - b.priceChange)[0]?.priceChange || 0)}
+                  {formatPercentage(topTokens.sort((a, b) => a.priceChange24h - b.priceChange24h)[0]?.priceChange24h || 0)}
                 </p>
               </div>
             )}
